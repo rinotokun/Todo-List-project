@@ -1,6 +1,5 @@
-from django.views import generic
+from django.views import generic, View
 from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_http_methods
 from django.urls import reverse_lazy
 
 from todo_list.models import Task, Tag
@@ -61,9 +60,9 @@ class TagDeleteView(CancelUrlMixin, generic.DeleteView):
     success_url = reverse_lazy("todo_list:tag-list")
 
 
-@require_http_methods(["POST"])
-def complete_undo_status_from_task(request, pk):
-    task = get_object_or_404(Task, pk=pk)
-    task.is_completed = not task.is_completed
-    task.save()
-    return redirect("todo_list:task-list")
+class StatusTaskView(View):
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        task.is_completed = not task.is_completed
+        task.save()
+        return redirect("todo_list:task-list")

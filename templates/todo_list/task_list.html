@@ -2,11 +2,45 @@
 
 {% block content %}
   <h1>TODO list
-    <a href="#" class="link-to-page btn btn-primary fs-5">Add task</a>
+    <a href="{% url 'todo_list:task-create' %}" class="link-to-page btn btn-primary fs-5">Add task</a>
   </h1>
+  <br>
   {% if task_list %}
     {% for task in task_list %}
-    
+      <h3>
+        {{ task.content }}
+        {% if task.is_completed %}
+          <span class="text-success">Done</span>
+        {% else %}
+          <span class="text-danger">Not done</span>
+        {% endif %}
+      </h3>
+      {% if task.is_completed %}
+        <form action="{% url 'todo_list:task-toggle-status' pk=task.id %}" method="post" class="link-to-page">
+          {% csrf_token %}
+          <input type="submit" value="Undo" class="btn btn-secondary fs-5">
+        </form>
+      {% else %}
+        <form action="{% url 'todo_list:task-toggle-status' pk=task.id %}" method="post" class="link-to-page">
+          {% csrf_token %}
+          <input type="submit" value="Complete" class="btn btn-success fs-5">
+        </form>
+      {% endif %}
+      <p>
+        Created: {{ task.created_at }}
+        {% if task.deadline %}
+          <span class="text-danger-emphasis">Deadline: {{ task.deadline }}</span>
+        {% endif %}
+      </p>
+      <p class="text-secondary fs-4">
+        Tags:
+        {% for tag in task.tags.all %}
+          {{ tag.name }}
+        {% endfor %}
+        <a href="{% url 'todo_list:task-update' pk=task.id %}?next={{ request.get_full_path|urlencode }}" class="link-offset-2 link-underline link-underline-opacity-0">Update</a>
+        <a href="{% url 'todo_list:task-delete' pk=task.id %}?next={{ request.get_full_path|urlencode }}" class="link-offset-2 link-underline link-underline-opacity-0">Delete</a>
+      </p>
+      <hr>
     {% endfor %}
   {% else %}
     <p>There are no tasks at the moment</p>

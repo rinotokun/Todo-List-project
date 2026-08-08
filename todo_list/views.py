@@ -1,4 +1,6 @@
 from django.views import generic
+from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
 from django.urls import reverse_lazy
 
 from todo_list.models import Task, Tag
@@ -18,18 +20,17 @@ class CancelUrlMixin:
 class TaskListView(generic.ListView):
     model = Task
     queryset = Task.objects.prefetch_related("tags")
-    paginate_by = 5
 
 
 class TaskCreateView(CancelUrlMixin, generic.CreateView):
     model = Task
-    fields = "__all__"
+    fields = ["content", "deadline", "tags"]
     success_url = reverse_lazy("todo_list:task-list")
 
 
 class TaskUpdateView(CancelUrlMixin, generic.UpdateView):
     model = Task
-    fields = "__all__"
+    fields = ["content", "deadline", "tags"]
     success_url = reverse_lazy("todo_list:task-list")
 
 
@@ -40,7 +41,6 @@ class TaskDeleteView(CancelUrlMixin, generic.DeleteView):
 
 class TagListView(generic.ListView):
     model = Tag
-    paginate_by = 5
 
 
 class TagCreateView(CancelUrlMixin, generic.CreateView):
@@ -58,3 +58,11 @@ class TagUpdateView(CancelUrlMixin, generic.UpdateView):
 class TagDeleteView(CancelUrlMixin, generic.DeleteView):
     model = Tag
     success_url = reverse_lazy("todo_list:tag-list")
+
+
+@require_http_methods(["POST"])
+def complete_undo_status_from_task(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.is_completed = not task.is_completed
+    task.save()
+    return redirect("todo_list:task-list")

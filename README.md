@@ -41,4 +41,4 @@ python manage.py runserver
 
 ## Tests
 Tests can be run with the command `python manage.py test`.
-Wrote comprehensive tests covering forms, models, views, and admin configurations.
+Tests cover models, views and forms.

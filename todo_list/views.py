@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.urls import reverse_lazy
 
 from todo_list.models import Task, Tag
+from todo_list.forms import TaskForm
 
 
 class CancelUrlMixin:
@@ -24,13 +25,13 @@ class TaskListView(generic.ListView):
 
 class TaskCreateView(CancelUrlMixin, generic.CreateView):
     model = Task
-    fields = ["content", "deadline", "tags"]
+    form_class = TaskForm
     success_url = reverse_lazy("todo_list:task-list")
 
 
 class TaskUpdateView(CancelUrlMixin, generic.UpdateView):
     model = Task
-    fields = ["content", "deadline", "tags"]
+    form_class = TaskForm
     success_url = reverse_lazy("todo_list:task-list")
 
 
